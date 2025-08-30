@@ -124,5 +124,7 @@ export type Classroom = {
   secondaryColor: string;
   contactEmail?: string;
   website?: string;
+  address?: string;
+  customSlug?: string;
   createdAt: Date;
 };

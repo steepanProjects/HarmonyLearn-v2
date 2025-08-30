@@ -32,6 +32,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { MentorNavigation } from "@/components/mentor/MentorNavigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { type Classroom } from "../../../shared/types";
 
 // Define StaffRequest type locally
@@ -42,6 +43,7 @@ type StaffRequest = {
   message?: string;
   status: string;
   createdAt: Date;
+  adminNotes?: string;
 };
 
 // Define schema locally
