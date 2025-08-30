@@ -236,6 +236,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Classroom members route
+  app.get("/api/classrooms/:id/members", async (req, res) => {
+    try {
+      const classroomId = parseInt(req.params.id);
+      const members = await storage.getClassroomMemberships(classroomId);
+      res.json(members);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Classroom analytics route
+  app.get("/api/classrooms/:id/analytics", async (req, res) => {
+    try {
+      const classroomId = parseInt(req.params.id);
+      // Basic analytics - you can expand this later
+      const analytics = {
+        totalStudents: 0,
+        totalSessions: 0,
+        averageAttendance: 0,
+        recentActivity: []
+      };
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Enrollment routes
   app.get("/api/enrollments", async (req, res) => {
     try {
@@ -538,6 +566,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mentorship session routes
+  app.get("/api/mentorship-sessions", async (req, res) => {
+    try {
+      const { mentorId, studentId, status } = req.query;
+      const sessions = await storage.getMentorshipSessions(
+        mentorId ? parseInt(mentorId as string) : undefined,
+        studentId ? parseInt(studentId as string) : undefined,
+        status as string
+      );
+      res.json(sessions);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/mentorship-sessions/:id", async (req, res) => {
+    try {
+      const session = await storage.getMentorshipSessionById(parseInt(req.params.id));
+      if (!session) return res.status(404).json({ error: "Mentorship session not found" });
+      res.json(session);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/mentorship-sessions", async (req, res) => {
+    try {
+      const sessionData = req.body;
+      const session = await storage.createMentorshipSession({
+        ...sessionData,
+        scheduledAt: new Date(sessionData.scheduledAt)
+      });
+      res.status(201).json(session);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Mentor profile routes (add missing endpoint)
+  app.get("/api/mentor-profiles", async (req, res) => {
+    try {
+      const mentorProfiles = await storage.getMentorProfiles();
+      res.json(mentorProfiles);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Mentor conversation routes
   app.get("/api/mentor-conversations/:requestId", async (req, res) => {
     try {
@@ -553,6 +629,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const conversationData = req.body;
       const conversation = await storage.createMentorConversation(conversationData);
       res.status(201).json(conversation);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Resignation request routes
+  app.get("/api/resignation-requests", async (req, res) => {
+    try {
+      const { classroomId, mentorId, status } = req.query;
+      const requests = await storage.getResignationRequests(
+        classroomId ? parseInt(classroomId as string) : undefined,
+        mentorId ? parseInt(mentorId as string) : undefined,
+        status as string
+      );
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/mentors/:mentorId/resignation-requests", async (req, res) => {
+    try {
+      const mentorId = parseInt(req.params.mentorId);
+      if (isNaN(mentorId)) {
+        return res.status(400).json({ error: "Invalid mentor ID" });
+      }
+      const requests = await storage.getResignationRequests(undefined, mentorId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/resignation-requests/:id", async (req, res) => {
+    try {
+      const request = await storage.getResignationRequestById(parseInt(req.params.id));
+      if (!request) return res.status(404).json({ error: "Resignation request not found" });
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/resignation-requests", async (req, res) => {
+    try {
+      const requestData = req.body;
+      const request = await storage.createResignationRequest({
+        ...requestData,
+        lastWorkDate: new Date(requestData.lastWorkDate)
+      });
+      res.status(201).json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/resignation-requests/:id/status", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status, reviewedBy, masterNotes } = req.body;
+      const request = await storage.updateResignationRequest(id, { status, reviewedBy, masterNotes });
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Staff classroom routes
+  app.get("/api/mentors/:mentorId/staff-classroom", async (req, res) => {
+    try {
+      const mentorId = parseInt(req.params.mentorId);
+      if (isNaN(mentorId)) {
+        return res.status(400).json({ error: "Invalid mentor ID" });
+      }
+      const classroomInfo = await storage.getStaffClassroomInfo(mentorId);
+      if (!classroomInfo) {
+        return res.status(404).json({ error: "No staff classroom found for this mentor" });
+      }
+      res.json(classroomInfo);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
     }

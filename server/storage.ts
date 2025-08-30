@@ -1031,5 +1031,172 @@ export const deleteSchedule = async (id: number) => {
   });
 };
 
+// Resignation request operations
+export const getResignationRequests = async (classroomId?: number, mentorId?: number, status?: string) => {
+  const where: any = {};
+  if (classroomId) where.classroomId = classroomId;
+  if (mentorId) where.mentorId = mentorId;
+  if (status) where.status = status;
+
+  return prisma.resignationRequest.findMany({
+    where,
+    include: {
+      mentor: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      },
+      reviewer: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+};
+
+export const getResignationRequestById = async (id: number) => {
+  return prisma.resignationRequest.findUnique({
+    where: { id },
+    include: {
+      mentor: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      },
+      reviewer: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      }
+    }
+  });
+};
+
+export const createResignationRequest = async (requestData: {
+  mentorId: number;
+  classroomId: number;
+  reason: string;
+  lastWorkDate: Date;
+}) => {
+  return prisma.resignationRequest.create({
+    data: requestData,
+    include: {
+      mentor: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      }
+    }
+  });
+};
+
+export const updateResignationRequest = async (id: number, requestData: {
+  status?: string;
+  reviewedBy?: number;
+  masterNotes?: string;
+}) => {
+  const updateData: any = { ...requestData };
+  if (requestData.reviewedBy) {
+    updateData.reviewedAt = new Date();
+  }
+
+  return prisma.resignationRequest.update({
+    where: { id },
+    data: updateData,
+    include: {
+      mentor: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      },
+      reviewer: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      }
+    }
+  });
+};
+
+// Mentorship session operations
+export const getMentorshipSessions = async (mentorId?: number, studentId?: number, status?: string) => {
+  const where: any = {};
+  if (mentorId) where.mentorId = mentorId;
+  if (studentId) where.studentId = studentId;
+  if (status) where.status = status;
+
+  return prisma.mentorshipSession.findMany({
+    where,
+    include: {
+      mentor: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      },
+      student: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      }
+    },
+    orderBy: { scheduledAt: 'desc' }
+  });
+};
+
+export const getMentorshipSessionById = async (id: number) => {
+  return prisma.mentorshipSession.findUnique({
+    where: { id },
+    include: {
+      mentor: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      },
+      student: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      }
+    }
+  });
+};
+
+export const createMentorshipSession = async (sessionData: {
+  mentorshipRequestId: number;
+  mentorId: number;
+  studentId: number;
+  scheduledAt: Date;
+  duration?: number;
+  title?: string;
+  description?: string;
+  status?: string;
+}) => {
+  return prisma.mentorshipSession.create({
+    data: sessionData,
+    include: {
+      mentor: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      },
+      student: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      }
+    }
+  });
+};
+
+// Staff classroom info for mentors
+export const getStaffClassroomInfo = async (mentorId: number) => {
+  // Find classroom where mentor is staff
+  const membership = await prisma.classroomMembership.findFirst({
+    where: {
+      userId: mentorId,
+      role: "staff",
+      status: "active"
+    },
+    include: {
+      classroom: {
+        include: {
+          master: {
+            select: { id: true, username: true, firstName: true, lastName: true }
+          }
+        }
+      }
+    }
+  });
+
+  if (!membership) {
+    return null;
+  }
+
+  return {
+    classroomId: membership.classroom.id,
+    classroomTitle: membership.classroom.title,
+    academyName: membership.classroom.academyName,
+    master: membership.classroom.master,
+    joinedAt: membership.joinedAt,
+    role: membership.role
+  };
+};
+
 // Export all for backward compatibility
 export * from '@prisma/client';
