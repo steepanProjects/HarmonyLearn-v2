@@ -6,7 +6,7 @@ import {
   type InsertUser,
   type InsertCourse,
   type InsertClassroom
-} from '../shared/types.js';
+} from '../shared/types.ts';
 
 // User operations
 export const getUsers = async () => {
