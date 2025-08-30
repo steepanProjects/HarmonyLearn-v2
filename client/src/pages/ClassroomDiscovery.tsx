@@ -53,23 +53,7 @@ const insertStaffRequestSchema = z.object({
   message: z.string().optional(),
 });
 import { useToast } from "@/hooks/use-toast";
-
-const apiRequest = async (url: string, options?: { method: string; body?: string }) => {
-  const response = await fetch(url, {
-    method: options?.method || "GET",
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: options?.body,
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-  }
-  
-  return response.json();
-};
+import { apiRequest } from "@/lib/queryClient";
 
 const staffRequestFormSchema = insertStaffRequestSchema.extend({
   message: z.string().min(10, "Please provide a brief message").max(500, "Message too long"),
@@ -193,10 +177,6 @@ export default function ClassroomDiscovery() {
         mentorId: user?.id || 0,
         classroomId: selectedClassroom.id,
       };
-      
-      console.log('Submitting staff request data:', requestData);
-      console.log('Current user:', user);
-      console.log('Selected classroom:', selectedClassroom);
       
       submitRequestMutation.mutate(requestData);
     }

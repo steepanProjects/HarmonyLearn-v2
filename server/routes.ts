@@ -8,7 +8,7 @@ import {
   type InsertUser,
   type InsertCourse,
   type InsertClassroom
-} from "./storage.js";
+} from "../shared/types.js";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 

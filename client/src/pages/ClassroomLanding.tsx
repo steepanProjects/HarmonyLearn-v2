@@ -53,7 +53,7 @@ import {
 import { getCurrentUser } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { type Classroom } from "@shared/schema";
+import { type Classroom } from "../../../shared/types";
 import { AcademyEditor } from "@/components/classroom/AcademyEditor";
 
 const joinRequestSchema = z.object({

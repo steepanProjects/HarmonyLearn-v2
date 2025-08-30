@@ -16,6 +16,7 @@ type MentorProfile = {
   totalReviews?: number;
   totalStudents?: number;
   bio?: string;
+  hourlyRate?: number;
   user: {
     id: number;
     username: string;
@@ -26,11 +27,11 @@ type MentorProfile = {
 };
 import { EmptyState } from "@/components/EmptyState";
 import { MentorCardSkeleton, LoadingGrid } from "@/components/LoadingSkeletons";
+import { getCurrentUser } from "@/lib/auth";
 
 export const MentorPage = () => {
   // Check if user is a mentor and redirect to dashboard
-  const currentUser = localStorage.getItem("currentUser");
-  const user = currentUser ? JSON.parse(currentUser) : null;
+  const user = getCurrentUser();
   if (user?.role === "mentor") {
     window.location.href = "/mentor-dashboard";
     return null;

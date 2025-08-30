@@ -58,7 +58,6 @@ const CourseDetail = () => {
     if (user && user.role === 'student') {
       setIsEnrolled(true);
       // In a real app, make API call to enroll user
-      console.log("Enrolling user in course:", course?.title);
     } else if (!user) {
       setAuthDialogOpen(true);
     } else {
@@ -71,7 +70,6 @@ const CourseDetail = () => {
     const user = getCurrentUser();
     if (user && user.role === 'student') {
       // Navigate to lesson or learning interface
-      console.log("Starting course:", course?.title);
     } else if (!user) {
       setAuthDialogOpen(true);
     } else {
@@ -170,11 +168,11 @@ const CourseDetail = () => {
               
               <div className="flex items-center gap-4">
                 <span className="text-3xl font-bold text-primary">
-                  {course.price || "Free"}
+                  {course.price ? `$${course.price}` : "Free"}
                 </span>
-                {course.price && course.price !== "Free" && (
+                {course.price && course.price > 0 && (
                   <span className="text-lg text-muted-foreground line-through">
-                    ${(parseInt(course.price.replace('$', '')) * 1.5).toFixed(0)}
+                    ${(course.price * 1.5).toFixed(0)}
                   </span>
                 )}
               </div>

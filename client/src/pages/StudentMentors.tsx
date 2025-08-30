@@ -14,24 +14,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-// Create apiRequest function inline since it doesn't exist yet
-const apiRequest = async (url: string, options: { method: string; body: any }) => {
-  const response = await fetch(url, {
-    method: options.method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(options.body),
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error('API Error:', response.status, errorData);
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-  }
-  
-  return response.json();
-};
+import { apiRequest } from "@/lib/queryClient";
+import { getCurrentUser } from "@/lib/auth";
 // Define extended mentor type with user data
 interface MentorWithUser {
   id: number;
@@ -73,11 +57,8 @@ export const StudentMentors = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Get current user from localStorage
-  const [currentUser] = useState(() => {
-    const user = localStorage.getItem('currentUser');
-    return user ? JSON.parse(user) : null;
-  });
+  // Get current user from auth utility
+  const [currentUser] = useState(() => getCurrentUser());
 
   const { data: mentors, isLoading, error } = useQuery<MentorWithUser[]>({
     queryKey: ['/api/mentors'],
@@ -94,10 +75,9 @@ export const StudentMentors = () => {
   // Mutation for creating mentorship request
   const createRequestMutation = useMutation({
     mutationFn: async (data: { mentorId: number; studentId: number; message: string }) => {
-      console.log('API Request data:', data);
       return apiRequest(`/api/mentorship-requests`, {
         method: "POST",
-        body: data,
+        body: JSON.stringify(data),
       });
     },
     onSuccess: () => {
@@ -184,11 +164,6 @@ export const StudentMentors = () => {
       studentId: typeof currentUser.id === 'string' ? parseInt(currentUser.id) : currentUser.id,
       message: data.message,
     };
-    
-    console.log('Submitting mentorship request:', {
-      ...requestData,
-      selectedMentor
-    });
     
     createRequestMutation.mutate(requestData);
   };

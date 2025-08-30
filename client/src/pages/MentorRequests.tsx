@@ -49,22 +49,7 @@ interface MentorshipRequest {
   };
 }
 
-const apiRequest = async (url: string, options: { method: string; body?: any }) => {
-  const response = await fetch(url, {
-    method: options.method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-  }
-  
-  return response.json();
-};
+import { apiRequest } from "@/lib/queryClient";
 
 export const MentorRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState<MentorshipRequest | null>(null);
@@ -100,7 +85,7 @@ export const MentorRequests = () => {
     }) => {
       return apiRequest(`/api/mentorship-requests/${requestId}/status`, {
         method: "PATCH",
-        body: { status, mentorResponse },
+        body: JSON.stringify({ status, mentorResponse }),
       });
     },
     onSuccess: () => {

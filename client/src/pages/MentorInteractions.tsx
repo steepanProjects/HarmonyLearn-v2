@@ -13,23 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { MentorNavigation } from "@/components/mentor/MentorNavigation";
 import { getCurrentUser } from "@/lib/auth";
-
-// API function
-const apiRequest = async (url: string, options: { method: string; body?: any }) => {
-  const response = await fetch(url, {
-    method: options.method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
-  
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  
-  return response.json();
-};
+import { apiRequest } from "@/lib/queryClient";
 
 interface MentorshipRequest {
   id: number;
@@ -114,11 +98,11 @@ export const MentorInteractions = () => {
       if (!selectedRequest) throw new Error("No request selected");
       return apiRequest(`/api/mentorship-requests/${selectedRequest.id}/conversations`, {
         method: "POST",
-        body: {
+        body: JSON.stringify({
           senderId: currentUser?.id || 0,
           message: data.message,
           messageType: 'text',
-        },
+        }),
       });
     },
     onSuccess: () => {
@@ -142,7 +126,7 @@ export const MentorInteractions = () => {
       if (!selectedRequest) throw new Error("No request selected");
       return apiRequest(`/api/mentorship-requests/${selectedRequest.id}/status`, {
         method: "PATCH",
-        body: data,
+        body: JSON.stringify(data),
       });
     },
     onSuccess: () => {

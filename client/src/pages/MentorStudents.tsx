@@ -74,22 +74,7 @@ interface MentorshipSession {
   mentorNotes?: string;
 }
 
-const apiRequest = async (url: string, options: { method: string; body?: any }) => {
-  const response = await fetch(url, {
-    method: options.method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-  }
-  
-  return response.json();
-};
+import { apiRequest } from "@/lib/queryClient";
 
 export const MentorStudents = () => {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -130,10 +115,10 @@ export const MentorStudents = () => {
     mutationFn: async (data: SessionForm & { mentorshipRequestId: number }) => {
       return apiRequest('/api/mentorship-sessions', {
         method: "POST",
-        body: {
+        body: JSON.stringify({
           ...data,
           scheduledAt: new Date(data.scheduledAt).toISOString(),
-        },
+        }),
       });
     },
     onSuccess: () => {

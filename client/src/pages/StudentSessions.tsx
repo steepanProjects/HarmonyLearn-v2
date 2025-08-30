@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/Footer";
 import { StudentNavigation } from "@/components/student/StudentNavigation";
+import { getCurrentUser } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,10 +41,7 @@ interface LiveSession {
 }
 
 const StudentSessions = () => {
-  const [currentUser] = useState(() => {
-    const user = localStorage.getItem('currentUser');
-    return user ? JSON.parse(user) : null;
-  });
+  const [currentUser] = useState(() => getCurrentUser());
 
   // Fetch student's live sessions
   const { data: sessions = [] } = useQuery<any[]>({
