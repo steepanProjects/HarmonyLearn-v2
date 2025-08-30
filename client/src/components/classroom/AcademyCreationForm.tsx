@@ -36,7 +36,7 @@ import {
 import { getCurrentUser } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertClassroomSchema } from "@shared/schema";
+import { insertClassroomSchema } from "../../../../shared/types";
 
 // Create a simplified schema for frontend form validation
 const academyCreationSchema = z.object({

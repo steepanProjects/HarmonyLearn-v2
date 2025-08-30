@@ -1,0 +1,782 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users table with role-based access
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  email     String   @unique
+  role      String   @default("student") // student, mentor, admin
+  isMaster  Boolean  @default(false) // true if mentor has been promoted to master
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  avatar    String?
+  bio       String?
+  xp        Int      @default(0)
+  level     Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  courses                   Course[]                   @relation("CourseMentor")
+  approvedCourses          Course[]                   @relation("CourseApprover")
+  enrollments              Enrollment[]
+  classrooms               Classroom[]
+  classroomMemberships     ClassroomMembership[]
+  liveSessions             LiveSession[]
+  posts                    Post[]
+  mentorProfiles           MentorProfile[]
+  userAchievements         UserAchievement[]
+  lessonProgress           LessonProgress[]
+  postComments             PostComment[]
+  followers                UserFollow[]               @relation("UserFollower")
+  following                UserFollow[]               @relation("UserFollowed")
+  mentorApplications       MentorApplication[]
+  mentorshipRequestsAsMentor MentorshipRequest[]      @relation("MentorRequests")
+  mentorshipRequestsAsStudent MentorshipRequest[]     @relation("StudentRequests")
+  mentorConversations      MentorConversation[]
+  mentorSessionsAsMentor   MentorshipSession[]        @relation("MentorSessions")
+  mentorSessionsAsStudent  MentorshipSession[]        @relation("StudentSessions")
+  resignationRequests      ResignationRequest[]
+  masterRoleRequests       MasterRoleRequest[]        @relation("MasterRoleRequestMentor")
+  reviewedMasterRequests   MasterRoleRequest[]        @relation("MasterRoleRequestReviewer")
+  staffRequests            StaffRequest[]             @relation("StaffRequestMentor")
+  reviewedStaffRequests    StaffRequest[]             @relation("StaffRequestReviewer")
+  reviewedResignationRequests ResignationRequest[]    @relation("ResignationRequestReviewer")
+  courseWaitlist           CourseWaitlist[]
+  courseReviews            CourseReview[]
+  eventRegistrations       EventRegistration[]
+  practiceGroupMemberships PracticeGroupMembership[]
+  createdPracticeGroups    PracticeGroup[]
+  createdEvents            Event[]
+  schedules                Schedule[]
+  scheduleEnrollments      ScheduleEnrollment[]
+  scheduleNotifications    ScheduleNotification[]
+  instructorConflicts      ScheduleConflict[]
+
+  @@map("users")
+}
+
+// Courses table
+model Course {
+  id                   Int       @id @default(autoincrement())
+  title                String
+  description          String?
+  category             String // piano, guitar, vocals, etc.
+  level                String // beginner, intermediate, advanced
+  price                Decimal?  @db.Decimal(10, 2)
+  duration             Int? // in minutes
+  mentorId             Int?      @map("mentor_id")
+  imageUrl             String?   @map("image_url")
+  isActive             Boolean   @default(true) @map("is_active")
+  // Enhanced course management fields
+  status               String    @default("draft") // draft, pending, approved, rejected, published, archived
+  approvedBy           Int?      @map("approved_by")
+  approvedAt           DateTime? @map("approved_at")
+  rejectedAt           DateTime? @map("rejected_at")
+  adminNotes           String?   @map("admin_notes")
+  syllabus             String? // Detailed course syllabus
+  prerequisites        String[] // Array of prerequisites
+  learningObjectives   String[] @map("learning_objectives") // Array of learning objectives
+  targetAudience       String?  @map("target_audience")
+  difficulty           Int       @default(1) // 1-10 difficulty scale
+  estimatedWeeks       Int?      @map("estimated_weeks") // Course duration in weeks
+  maxStudents          Int       @default(100) @map("max_students") // Maximum enrollment
+  currentEnrollments   Int       @default(0) @map("current_enrollments")
+  averageRating        Decimal   @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+  totalRatings         Int       @default(0) @map("total_ratings")
+  totalRevenue         Decimal   @default(0.00) @map("total_revenue") @db.Decimal(12, 2)
+  tags                 String[] // Course tags for better searchability
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  mentor      User?            @relation("CourseMentor", fields: [mentorId], references: [id])
+  approver    User?            @relation("CourseApprover", fields: [approvedBy], references: [id])
+  enrollments Enrollment[]
+  waitlist    CourseWaitlist[]
+  analytics   CourseAnalytics[]
+  reviews     CourseReview[]
+  lessons     CourseLesson[]
+
+  @@map("courses")
+}
+
+// Classrooms table - enhanced for academy-style customizable classrooms
+model Classroom {
+  id                Int       @id @default(autoincrement())
+  // Legacy required fields for backwards compatibility
+  title             String // Required legacy field
+  subject           String // Required legacy field
+  level             String // Required legacy field
+  description       String?
+  masterId          Int?      @map("master_id")
+  maxStudents       Int       @default(50) @map("max_students")
+  isActive          Boolean   @default(true) @map("is_active")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  // New academy fields
+  academyName       String?   @map("academy_name") // Name of the academy/classroom
+  about             String? // Detailed about section for landing page
+  instruments       String[] // Array of instruments taught
+  curriculum        String? // Detailed curriculum description
+  // Landing page customization
+  heroImage         String?   @map("hero_image") // Main image for landing page
+  logoImage         String?   @map("logo_image") // Academy logo
+  aboutImage        String?   @map("about_image") // Image for about section
+  primaryColor      String    @default("#3B82F6") @map("primary_color") // Theme color
+  secondaryColor    String    @default("#10B981") @map("secondary_color") // Secondary theme color
+  contactEmail      String?   @map("contact_email")
+  contactPhone      String?   @map("contact_phone")
+  website           String?
+  socialLinks       String?   @map("social_links") // JSON string of social media links
+  features          String[] // Array of key features/highlights
+  testimonials      String? // JSON string of student testimonials
+  pricing           String? // JSON string of pricing tiers
+  schedule          String? // JSON string of class schedules
+  address           String? // Physical address if applicable
+  isPublic          Boolean   @default(true) @map("is_public") // Whether landing page is publicly accessible
+  customSlug        String?   @unique @map("custom_slug") // Custom URL slug for sharing
+
+  // Relations
+  master      User?                   @relation(fields: [masterId], references: [id])
+  memberships ClassroomMembership[]
+  liveSessions LiveSession[]
+  staffRequests StaffRequest[]
+  schedules    Schedule[]
+
+  @@map("classrooms")
+}
+
+// Enrollments table (many-to-many between users and courses)
+model Enrollment {
+  id                   Int       @id @default(autoincrement())
+  userId               Int       @map("user_id")
+  courseId             Int       @map("course_id")
+  progress             Int       @default(0) // percentage 0-100
+  completedAt          DateTime? @map("completed_at")
+  enrolledAt           DateTime  @default(now()) @map("enrolled_at")
+  // Enhanced enrollment tracking
+  status               String    @default("active") // active, paused, completed, dropped
+  lastAccessedAt       DateTime? @map("last_accessed_at")
+  totalTimeSpent       Int       @default(0) @map("total_time_spent") // in minutes
+  currentLesson        Int       @default(1) @map("current_lesson")
+  completedLessons     Int       @default(0) @map("completed_lessons")
+  certificateIssued    Boolean   @default(false) @map("certificate_issued")
+  certificateIssuedAt  DateTime? @map("certificate_issued_at")
+  enrollmentNotes      String?   @map("enrollment_notes") // Student or mentor notes
+  paymentStatus        String    @default("pending") @map("payment_status") // pending, paid, refunded
+  paymentAmount        Decimal?  @map("payment_amount") @db.Decimal(10, 2)
+  refundAmount         Decimal?  @map("refund_amount") @db.Decimal(10, 2)
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@map("enrollments")
+}
+
+// Classroom memberships (many-to-many between users and classrooms)
+model ClassroomMembership {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  classroomId Int      @map("classroom_id")
+  role        String   @default("student") // master, staff, student
+  status      String   @default("active") // active, pending, removed
+  joinedAt    DateTime @default(now()) @map("joined_at")
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id])
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+
+  @@map("classroom_memberships")
+}
+
+// Staff requests for classrooms (mentors requesting to join as staff)
+model StaffRequest {
+  id            Int       @id @default(autoincrement())
+  mentorId      Int       @map("mentor_id")
+  classroomId   Int       @map("classroom_id")
+  message       String? // Optional message from mentor
+  status        String    @default("pending") // pending, approved, rejected
+  reviewedBy    Int?      @map("reviewed_by")
+  reviewedAt    DateTime? @map("reviewed_at")
+  adminNotes    String?   @map("admin_notes")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  mentor    User      @relation("StaffRequestMentor", fields: [mentorId], references: [id])
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+  reviewer  User?     @relation("StaffRequestReviewer", fields: [reviewedBy], references: [id])
+
+  @@map("staff_requests")
+}
+
+// Master role requests (mentors applying to become masters)
+model MasterRoleRequest {
+  id             Int       @id @default(autoincrement())
+  mentorId       Int       @map("mentor_id")
+  experience     String @default("") // Years of experience and background
+  qualifications String @default("") // Teaching qualifications and certifications
+  motivation     String @default("") // Why they want to become a master
+  portfolio      String? // Links to their work or teaching samples
+  status         String    @default("pending") // pending, approved, rejected
+  reviewedBy     Int?      @map("reviewed_by")
+  reviewedAt     DateTime? @map("reviewed_at")
+  approvedAt     DateTime? @map("approved_at")
+  rejectedAt     DateTime? @map("rejected_at")
+  adminNotes     String?   @map("admin_notes")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  mentor   User  @relation("MasterRoleRequestMentor", fields: [mentorId], references: [id])
+  reviewer User? @relation("MasterRoleRequestReviewer", fields: [reviewedBy], references: [id])
+
+  @@map("master_role_requests")
+}
+
+// Resignation requests (staff wanting to leave their classroom positions)
+model ResignationRequest {
+  id           Int       @id @default(autoincrement())
+  mentorId     Int       @map("mentor_id")
+  classroomId  Int       @map("classroom_id")
+  reason       String // Reason for resignation
+  lastWorkDate DateTime  @map("last_work_date") // When they want to stop
+  status       String    @default("pending") // pending, approved, rejected
+  reviewedBy   Int?      @map("reviewed_by")
+  reviewedAt   DateTime? @map("reviewed_at")
+  masterNotes  String?   @map("master_notes") // Notes from the classroom master
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  mentor   User  @relation(fields: [mentorId], references: [id])
+  reviewer User? @relation("ResignationRequestReviewer", fields: [reviewedBy], references: [id])
+
+  @@map("resignation_requests")
+}
+
+// Course waitlist for when courses are full
+model CourseWaitlist {
+  id                 Int       @id @default(autoincrement())
+  userId             Int       @map("user_id")
+  courseId           Int       @map("course_id")
+  priority           Int       @default(0) // Lower numbers = higher priority
+  joinedWaitlistAt   DateTime  @default(now()) @map("joined_waitlist_at")
+  notifiedAt         DateTime? @map("notified_at") // When user was notified of availability
+  status             String    @default("waiting") // waiting, notified, enrolled, expired
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@map("course_waitlist")
+}
+
+// Course analytics for detailed tracking
+model CourseAnalytics {
+  id               Int      @id @default(autoincrement())
+  courseId         Int      @map("course_id")
+  date             DateTime @default(now())
+  enrollments      Int      @default(0)
+  completions      Int      @default(0)
+  dropouts         Int      @default(0)
+  averageProgress  Int      @default(0)
+  revenue          Decimal  @default(0) @db.Decimal(10, 2)
+  questionsAsked   Int      @default(0) @map("questions_asked")
+  lessonsCompleted Int      @default(0) @map("lessons_completed")
+  averageRating    Decimal  @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+
+  // Relations
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@map("course_analytics")
+}
+
+// Live sessions table
+model LiveSession {
+  id              Int      @id @default(autoincrement())
+  title           String
+  description     String?
+  mentorId        Int      @map("mentor_id")
+  classroomId     Int?     @map("classroom_id")
+  scheduledAt     DateTime @map("scheduled_at")
+  duration        Int      @default(60) // in minutes
+  maxParticipants Int      @default(20) @map("max_participants")
+  status          String   @default("scheduled") // scheduled, live, completed, cancelled
+  recordingUrl    String?  @map("recording_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  mentor    User       @relation(fields: [mentorId], references: [id])
+  classroom Classroom? @relation(fields: [classroomId], references: [id])
+
+  @@map("live_sessions")
+}
+
+// Community posts table
+model Post {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  title     String?
+  content   String
+  type      String   @default("general") // general, achievement, question, showcase
+  audioFile String?  @map("audio_file") // for audio recordings
+  likes     Int      @default(0)
+  comments  Int      @default(0)
+  shares    Int      @default(0)
+  tags      String[] // array of tags
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id])
+  postComments PostComment[]
+
+  @@map("posts")
+}
+
+// Learning paths table
+model LearningPath {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  duration      String? // e.g., "6 months"
+  lessonsCount  Int      @default(0) @map("lessons_count")
+  difficulty    String // beginner, intermediate, advanced, all-levels
+  price         String   @default("Free") // e.g., "$29/month", "Free"
+  rating        Decimal  @default(0) @db.Decimal(3, 2)
+  enrolledCount Int      @default(0) @map("enrolled_count")
+  instructorId  Int      @map("instructor_id")
+  imageUrl      String?  @map("image_url")
+  skills        String[] // array of skills learned
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("learning_paths")
+}
+
+// Practice groups table
+model PracticeGroup {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String?
+  instrument   String? // Mixed, Piano, Guitar, etc.
+  membersCount Int      @default(0) @map("members_count")
+  maxMembers   Int      @default(50) @map("max_members")
+  nextSession  DateTime? @map("next_session")
+  createdById  Int      @map("created_by_id")
+  imageEmoji   String   @default("🎵") @map("image_emoji")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  createdBy User                      @relation(fields: [createdById], references: [id])
+  members   PracticeGroupMembership[]
+
+  @@map("practice_groups")
+}
+
+// Practice group memberships
+model PracticeGroupMembership {
+  id       Int      @id @default(autoincrement())
+  userId   Int      @map("user_id")
+  groupId  Int      @map("group_id")
+  role     String   @default("member") // member, moderator, admin
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  // Relations
+  user  User          @relation(fields: [userId], references: [id])
+  group PracticeGroup @relation(fields: [groupId], references: [id])
+
+  @@map("practice_group_memberships")
+}
+
+// Forum categories and topics
+model ForumCategory {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  icon        String   @default("🎵")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  @@map("forum_categories")
+}
+
+model ForumTopic {
+  id          Int      @id @default(autoincrement())
+  categoryId  Int      @map("category_id")
+  name        String
+  description String?
+  icon        String   @default("🎵")
+  postsCount  Int      @default(0) @map("posts_count")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("forum_topics")
+}
+
+// Events table
+model Event {
+  id                Int      @id @default(autoincrement())
+  title             String
+  description       String?
+  type              String // workshop, masterclass, concert, community-event
+  startDate         DateTime @map("start_date")
+  endDate           DateTime? @map("end_date")
+  location          String? // online, venue name, etc.
+  maxAttendees      Int?     @map("max_attendees")
+  currentAttendees  Int      @default(0) @map("current_attendees")
+  price             Decimal? @db.Decimal(10, 2)
+  instructorId      Int      @map("instructor_id")
+  imageUrl          String?  @map("image_url")
+  isOnline          Boolean  @default(true) @map("is_online")
+  meetingLink       String?  @map("meeting_link")
+  status            String   @default("upcoming") // upcoming, live, completed, cancelled
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  // Relations
+  instructor     User                @relation(fields: [instructorId], references: [id])
+  registrations  EventRegistration[]
+
+  @@map("events")
+}
+
+// Event registrations
+model EventRegistration {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  eventId      Int      @map("event_id")
+  status       String   @default("registered") // registered, attended, cancelled
+  registeredAt DateTime @default(now()) @map("registered_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@map("event_registrations")
+}
+
+// Course reviews and ratings
+model CourseReview {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  courseId     Int      @map("course_id")
+  rating       Int // 1-5 stars
+  title        String?
+  content      String?
+  isVerified   Boolean  @default(false) @map("is_verified") // verified purchase
+  helpfulVotes Int      @default(0) @map("helpful_votes")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@map("course_reviews")
+}
+
+// Mentor profiles (extended user data for mentors)
+model MentorProfile {
+  id                    Int       @id @default(autoincrement())
+  userId                Int       @map("user_id")
+  specialization        String?
+  experience            String? // e.g., "15+ years"
+  hourlyRate            String?   @map("hourly_rate") // e.g., "$75"
+  location              String?
+  languages             String[]
+  badges                String[]
+  bio                   String?
+  availability          String    @default("Available") // Available, Busy, Offline
+  totalStudents         Int       @default(0) @map("total_students")
+  totalReviews          Int       @default(0) @map("total_reviews")
+  averageRating         Decimal   @default(0) @map("average_rating") @db.Decimal(3, 2)
+  nextAvailableSession  DateTime? @map("next_available_session")
+  isVerified            Boolean   @default(false) @map("is_verified")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("mentor_profiles")
+}
+
+// Achievements and badges
+model Achievement {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String?
+  icon         String   @default("🏆")
+  category     String? // skill, progress, social, special
+  requirements String? // JSON string describing requirements
+  xpReward     Int      @default(0) @map("xp_reward")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+// User achievements
+model UserAchievement {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  achievementId Int      @map("achievement_id")
+  earnedAt      DateTime @default(now()) @map("earned_at")
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@map("user_achievements")
+}
+
+// Course lessons (for detailed course structure)
+model CourseLesson {
+  id          Int      @id @default(autoincrement())
+  courseId    Int      @map("course_id")
+  title       String
+  description String?
+  videoUrl    String?  @map("video_url")
+  duration    Int? // in minutes
+  sortOrder   Int      @default(0) @map("sort_order")
+  isPreview   Boolean  @default(false) @map("is_preview")
+  resources   String[] // array of resource URLs
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  course         Course           @relation(fields: [courseId], references: [id])
+  lessonProgress LessonProgress[]
+
+  @@map("course_lessons")
+}
+
+// User lesson progress
+model LessonProgress {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  lessonId    Int       @map("lesson_id")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  watchTime   Int       @default(0) @map("watch_time") // in seconds
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user   User         @relation(fields: [userId], references: [id])
+  lesson CourseLesson @relation(fields: [lessonId], references: [id])
+
+  @@map("lesson_progress")
+}
+
+// Post comments
+model PostComment {
+  id              Int      @id @default(autoincrement())
+  postId          Int      @map("post_id")
+  userId          Int      @map("user_id")
+  content         String
+  parentCommentId Int?     @map("parent_comment_id") // self-reference for nested comments
+  likes           Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  post User @relation(fields: [userId], references: [id])
+  postRelation Post @relation(fields: [postId], references: [id])
+
+  @@map("post_comments")
+}
+
+// User follows (for social features)
+model UserFollow {
+  id         Int      @id @default(autoincrement())
+  followerId Int      @map("follower_id")
+  followedId Int      @map("followed_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  follower User @relation("UserFollower", fields: [followerId], references: [id])
+  followed User @relation("UserFollowed", fields: [followedId], references: [id])
+
+  @@map("user_follows")
+}
+
+// Mentor applications (for mentor verification process)
+model MentorApplication {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @map("user_id")
+  name          String
+  email         String
+  specialization String
+  experience    String
+  bio           String
+  credentials   String? // education, certifications
+  portfolio     String? // links to work samples
+  status        String    @default("pending") // pending, approved, rejected
+  adminNotes    String?   @map("admin_notes")
+  reviewedBy    Int?      @map("reviewed_by")
+  reviewedAt    DateTime? @map("reviewed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("mentor_applications")
+}
+
+// Mentorship requests (student-mentor connection requests)
+model MentorshipRequest {
+  id             Int       @id @default(autoincrement())
+  studentId      Int       @map("student_id")
+  mentorId       Int       @map("mentor_id")
+  message        String? // initial request message from student
+  subject        String? // subject/instrument they want to learn
+  experienceLevel String? @map("experience_level") // beginner, intermediate, advanced
+  goals          String? // learning goals
+  timeCommitment String? @map("time_commitment") // hours per week
+  preferredSchedule String? @map("preferred_schedule") // availability
+  status         String    @default("pending") // pending, accepted, rejected, completed
+  mentorResponse String?   @map("mentor_response") // mentor's response message
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  student      User                 @relation("StudentRequests", fields: [studentId], references: [id])
+  mentor       User                 @relation("MentorRequests", fields: [mentorId], references: [id])
+  conversations MentorConversation[]
+  sessions     MentorshipSession[]
+
+  @@map("mentorship_requests")
+}
+
+// Mentor-student conversations
+model MentorConversation {
+  id                 Int      @id @default(autoincrement())
+  mentorshipRequestId Int     @map("mentorship_request_id")
+  senderId           Int      @map("sender_id")
+  message            String
+  messageType        String   @default("text") @map("message_type") // text, audio, file
+  attachmentUrl      String?  @map("attachment_url")
+  isRead             Boolean  @default(false) @map("is_read")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  // Relations
+  mentorshipRequest MentorshipRequest @relation(fields: [mentorshipRequestId], references: [id])
+  sender            User              @relation(fields: [senderId], references: [id])
+
+  @@map("mentor_conversations")
+}
+
+// Mentorship sessions (scheduled lessons)
+model MentorshipSession {
+  id                 Int       @id @default(autoincrement())
+  mentorshipRequestId Int      @map("mentorship_request_id")
+  mentorId           Int       @map("mentor_id")
+  studentId          Int       @map("student_id")
+  title              String    @default("Mentorship Session")
+  description        String?
+  scheduledAt        DateTime  @map("scheduled_at")
+  duration           Int       @default(60) // minutes
+  status             String    @default("scheduled") // scheduled, completed, cancelled, no-show
+  meetingLink        String?   @map("meeting_link")
+  recordingUrl       String?   @map("recording_url")
+  mentorNotes        String?   @map("mentor_notes") // private notes from mentor
+  studentFeedback    String?   @map("student_feedback") // feedback from student
+  rating             Int? // 1-5 rating from student
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  mentorshipRequest MentorshipRequest @relation(fields: [mentorshipRequestId], references: [id])
+  mentor            User              @relation("MentorSessions", fields: [mentorId], references: [id])
+  student           User              @relation("StudentSessions", fields: [studentId], references: [id])
+
+  @@map("mentorship_sessions")
+}
+
+// Timetable/Schedule tables
+model Schedule {
+  id           Int      @id @default(autoincrement())
+  classroomId  Int      @map("classroom_id")
+  title        String
+  description  String?
+  dayOfWeek    Int // 0=Sunday, 1=Monday, etc.
+  startTime    String   @map("start_time") // HH:MM format
+  endTime      String   @map("end_time") // HH:MM format
+  instructorId Int      @map("instructor_id")
+  subject      String?
+  sessionType  String   @default("class") @map("session_type") // class, practice, exam, etc.
+  maxStudents  Int      @default(50) @map("max_students")
+  isRecurring  Boolean  @default(true) @map("is_recurring")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  classroom   Classroom            @relation(fields: [classroomId], references: [id])
+  instructor  User                 @relation(fields: [instructorId], references: [id])
+  enrollments ScheduleEnrollment[]
+  notifications ScheduleNotification[]
+  conflicts1  ScheduleConflict[]   @relation("Schedule1Conflicts")
+  conflicts2  ScheduleConflict[]   @relation("Schedule2Conflicts")
+
+  @@map("schedules")
+}
+
+model ScheduleEnrollment {
+  id         Int      @id @default(autoincrement())
+  scheduleId Int      @map("schedule_id")
+  studentId  Int      @map("student_id")
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+  status     String   @default("active") // active, dropped, completed
+
+  // Relations
+  schedule Schedule @relation(fields: [scheduleId], references: [id])
+  student  User     @relation(fields: [studentId], references: [id])
+
+  @@map("schedule_enrollments")
+}
+
+model ScheduleNotification {
+  id               Int      @id @default(autoincrement())
+  scheduleId       Int      @map("schedule_id")
+  userId           Int      @map("user_id")
+  notificationType String   @map("notification_type") // upcoming_session, session_changed, etc.
+  message          String
+  isRead           Boolean  @default(false) @map("is_read")
+  sentAt           DateTime @default(now()) @map("sent_at")
+
+  // Relations
+  schedule Schedule @relation(fields: [scheduleId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("schedule_notifications")
+}
+
+// Schedule conflicts tracking
+model ScheduleConflict {
+  id           Int       @id @default(autoincrement())
+  instructorId Int       @map("instructor_id")
+  scheduleId1  Int       @map("schedule_id_1")
+  scheduleId2  Int       @map("schedule_id_2")
+  conflictType String    @map("conflict_type") // time_overlap, double_booking
+  resolvedAt   DateTime? @map("resolved_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  instructor User     @relation(fields: [instructorId], references: [id])
+  schedule1  Schedule @relation("Schedule1Conflicts", fields: [scheduleId1], references: [id])
+  schedule2  Schedule @relation("Schedule2Conflicts", fields: [scheduleId2], references: [id])
+
+  @@map("schedule_conflicts")
+}

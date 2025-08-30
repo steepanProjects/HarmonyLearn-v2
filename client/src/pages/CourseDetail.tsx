@@ -27,7 +27,7 @@ import {
   MessageCircle
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import type { Course } from "@shared/schema";
+import type { Course } from "../../../shared/types";
 
 const CourseDetail = () => {
   const params = useParams();

@@ -11,7 +11,30 @@ import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import type { LiveSession } from "@shared/schema";
+// Define LiveSession type locally
+type LiveSession = {
+  id: number;
+  title: string;
+  description?: string;
+  mentorId: number;
+  classroomId?: number;
+  scheduledAt: Date;
+  duration?: number;
+  maxParticipants?: number;
+  status: string;
+  recordingUrl?: string;
+  mentor: {
+    id: number;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  classroom?: {
+    id: number;
+    title: string;
+    academyName?: string;
+  };
+};
 import { EmptyState } from "@/components/EmptyState";
 import { LiveSessionSkeleton, LoadingGrid } from "@/components/LoadingSkeletons";
 

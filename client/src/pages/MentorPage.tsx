@@ -6,7 +6,24 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import type { MentorProfile } from "@shared/schema";
+// Define MentorProfile type locally
+type MentorProfile = {
+  id: number;
+  userId: number;
+  specialization?: string;
+  experience?: string;
+  averageRating?: number;
+  totalReviews?: number;
+  totalStudents?: number;
+  bio?: string;
+  user: {
+    id: number;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+  };
+};
 import { EmptyState } from "@/components/EmptyState";
 import { MentorCardSkeleton, LoadingGrid } from "@/components/LoadingSkeletons";
 

@@ -572,7 +572,7 @@ export default function ClassroomManagement() {
 
   const renderScheduleTab = () => (
     <div className="space-y-6">
-      <TimetableManager classroomId={parseInt(classroomId)} />
+      <TimetableManager classroomId={parseInt(classroomId || "0")} />
     </div>
   );
 

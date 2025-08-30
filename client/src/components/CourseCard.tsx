@@ -10,10 +10,10 @@ interface CourseCardProps {
   description: string;
   instructor?: string;
   mentorName?: string;
-  duration: number;
+  duration: number | string;
   level: string;
   category: string;
-  price: number;
+  price: number | string;
   rating?: number;
   averageRating?: number;
   students?: number;
@@ -32,6 +32,7 @@ interface CourseCardProps {
   onViewDetails?: (courseId: number) => void;
   onContinue?: (courseId: number) => void;
   onManage?: (courseId: number) => void;
+  onClick?: () => void;
 }
 
 export const CourseCard = ({ 
@@ -61,7 +62,8 @@ export const CourseCard = ({
   onEnroll,
   onViewDetails,
   onContinue,
-  onManage
+  onManage,
+  onClick
 }: CourseCardProps) => {
   const currentUser = getCurrentUser();
   const isMentor = hasRole("mentor");
@@ -173,7 +175,7 @@ export const CourseCard = ({
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4 text-blue-500" />
-            <span>{Math.floor(duration / 60)}h {duration % 60}m</span>
+            <span>{typeof duration === 'number' ? `${Math.floor(duration / 60)}h ${duration % 60}m` : duration}</span>
           </div>
           <div className="flex items-center gap-1">
             <Users className="h-4 w-4 text-green-500" />

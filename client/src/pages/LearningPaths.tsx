@@ -6,7 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Star, CheckCircle, PlayCircle, BookOpen, Trophy, ArrowRight, GraduationCap } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import type { LearningPath } from "@shared/schema";
+// Define LearningPath type locally
+type LearningPath = {
+  id: number;
+  title: string;
+  description?: string;
+  category: string;
+  difficulty: string;
+  estimatedWeeks?: number;
+  totalLessons: number;
+  completedLessons: number;
+  isPublic: boolean;
+  createdAt: Date;
+};
 import { EmptyState } from "@/components/EmptyState";
 import { CourseCardSkeleton, LoadingGrid } from "@/components/LoadingSkeletons";
 
