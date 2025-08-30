@@ -5,7 +5,24 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Music, Guitar, Piano, Mic, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import type { MentorProfile } from "@shared/schema";
+// Define MentorProfile type locally
+type MentorProfile = {
+  id: number;
+  userId: number;
+  specialization?: string;
+  experience?: string;
+  averageRating?: number;
+  totalReviews?: number;
+  totalStudents?: number;
+  bio?: string;
+  user: {
+    id: number;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+  };
+};
 import { MentorCardSkeleton } from "@/components/LoadingSkeletons";
 
 export const MentorSection = () => {

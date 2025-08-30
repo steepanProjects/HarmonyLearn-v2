@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { type Classroom } from "@shared/schema";
+import { type Classroom } from "../../../../shared/types";
 
 interface AcademyEditorProps {
   classroom: Classroom;

@@ -10,7 +10,28 @@ import { useToast } from "@/hooks/use-toast";
 import { getCurrentUser } from "@/lib/auth";
 import { AcademyCreationForm } from "@/components/classroom/AcademyCreationForm";
 import ResignationRequestManager from "@/components/ResignationRequestManager";
-import { type Classroom, type StaffRequest } from "@shared/schema";
+import { type Classroom } from "../../../shared/types";
+
+// Define StaffRequest type locally
+type StaffRequest = {
+  id: number;
+  mentorId: number;
+  classroomId: number;
+  message?: string;
+  status: string;
+  createdAt: Date;
+  mentor: {
+    id: number;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  classroom: {
+    id: number;
+    title: string;
+    academyName?: string;
+  };
+};
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 

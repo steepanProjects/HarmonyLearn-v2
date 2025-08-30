@@ -2,7 +2,7 @@ import { Guitar, Piano, Drum, Mic, Music4, Music } from "lucide-react";
 import { useLocation } from "wouter";
 import { CourseCard } from "./CourseCard";
 import { useQuery } from "@tanstack/react-query";
-import type { Course } from "@shared/schema";
+import type { Course } from "../../../shared/types";
 import { CourseCardSkeleton } from "./LoadingSkeletons";
 
 interface CourseCategoriesProps {
