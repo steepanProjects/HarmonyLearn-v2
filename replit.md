@@ -19,12 +19,12 @@ Preferred communication style: Simple, everyday language.
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js.
-- **Database**: PostgreSQL with Drizzle ORM.
+- **Database**: PostgreSQL with Prisma ORM.
 - **Authentication**: Session-based authentication.
 - **API**: RESTful API structure (`/api` prefix).
 
 ### Database Design
-- **ORM**: Drizzle ORM with PostgreSQL dialect.
+- **ORM**: Prisma ORM with PostgreSQL.
 - **Database**: PostgreSQL with schema for users, courses, classrooms, enrollments, classroom_memberships, live_sessions, and posts.
 - **Storage Layer**: `server/storage.ts` for CRUD operations.
 - **API Routes**: RESTful endpoints in `server/routes.ts`.
