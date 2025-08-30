@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Music, Search, Bell, User, BookOpen, Users, Settings, Video, Shield, GraduationCap, Lightbulb } from "lucide-react";
+import { Music, Bell, User, BookOpen, Users, Settings, Video, Shield, GraduationCap, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -180,16 +180,6 @@ export const Header = () => {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* Search Bar - moved to right side */}
-        <div className="hidden lg:flex items-center flex-1 justify-end mr-4">
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              className="pl-10 bg-muted/50 border-border/50"
-            />
-          </div>
-        </div>
 
         {/* User Actions */}
         <div className="flex items-center space-x-2">
