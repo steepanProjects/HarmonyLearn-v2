@@ -29,10 +29,10 @@ const apiRequest = async (url: string, options: { method: string; body?: string 
 };
 
 const masterRoleRequestSchema = z.object({
-  reason: z.string().min(50, "Please provide at least 50 characters explaining why you want to become a master"),
+  motivation: z.string().min(50, "Please provide at least 50 characters explaining why you want to become a master"),
   experience: z.string().min(30, "Please describe your teaching/classroom management experience (minimum 30 characters)"),
-  plannedClassrooms: z.string().min(30, "Please describe your planned classrooms (minimum 30 characters)"),
-  additionalQualifications: z.string().optional(),
+  qualifications: z.string().min(30, "Please describe your qualifications (minimum 30 characters)"),
+  portfolio: z.string().optional(),
 });
 
 type MasterRoleRequestFormData = z.infer<typeof masterRoleRequestSchema>;
@@ -49,10 +49,10 @@ export default function MasterRoleRequestForm({ onSuccess }: MasterRoleRequestFo
   const form = useForm<MasterRoleRequestFormData>({
     resolver: zodResolver(masterRoleRequestSchema),
     defaultValues: {
-      reason: "",
+      motivation: "",
       experience: "",
-      plannedClassrooms: "",
-      additionalQualifications: "",
+      qualifications: "",
+      portfolio: "",
     },
   });
 
@@ -124,7 +124,7 @@ export default function MasterRoleRequestForm({ onSuccess }: MasterRoleRequestFo
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="reason"
+              name="motivation"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-semibold">
@@ -164,15 +164,15 @@ export default function MasterRoleRequestForm({ onSuccess }: MasterRoleRequestFo
 
             <FormField
               control={form.control}
-              name="plannedClassrooms"
+              name="qualifications"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-semibold">
-                    Planned Classrooms & Teaching Approach *
+                    Teaching Qualifications & Certifications *
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe the type of classrooms you plan to create, your teaching methodology, subject areas, and how you'll engage students..."
+                      placeholder="List your teaching qualifications, certifications, formal education, and relevant credentials..."
                       className="min-h-[120px] resize-none"
                       {...field}
                     />
@@ -184,15 +184,15 @@ export default function MasterRoleRequestForm({ onSuccess }: MasterRoleRequestFo
 
             <FormField
               control={form.control}
-              name="additionalQualifications"
+              name="portfolio"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-semibold">
-                    Additional Qualifications (Optional)
+                    Portfolio & Work Samples (Optional)
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="List any additional certifications, awards, publications, or relevant qualifications that support your application..."
+                      placeholder="Share links to your teaching portfolio, sample lessons, student testimonials, or other work that demonstrates your expertise..."
                       className="min-h-[100px] resize-none"
                       {...field}
                     />
