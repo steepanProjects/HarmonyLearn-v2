@@ -767,7 +767,7 @@ export const updateMasterRoleRequest = async (id: number, requestData: {
     updateData.reviewedAt = new Date();
   }
 
-  return prisma.masterRoleRequest.update({
+  const updatedRequest = await prisma.masterRoleRequest.update({
     where: { id },
     data: updateData,
     include: {
@@ -779,6 +779,16 @@ export const updateMasterRoleRequest = async (id: number, requestData: {
       }
     }
   });
+
+  // If the request is approved, update the user's isMaster field
+  if (requestData.status === 'approved') {
+    await prisma.user.update({
+      where: { id: updatedRequest.mentorId },
+      data: { isMaster: true }
+    });
+  }
+
+  return updatedRequest;
 };
 
 export const deleteMasterRoleRequest = async (id: number) => {
