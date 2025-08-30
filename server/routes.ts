@@ -502,9 +502,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/master-role-requests", async (req, res) => {
     try {
       const requestData = req.body;
-      const request = await storage.createMasterRoleRequest(requestData);
+      
+      // Validate that we have the required fields for master role request
+      if (!requestData.mentorId || !requestData.experience || !requestData.qualifications || !requestData.motivation) {
+        return res.status(400).json({ 
+          error: "Missing required fields: mentorId, experience, qualifications, motivation" 
+        });
+      }
+      
+      // Extract only the valid fields for master role request
+      const validRequestData = {
+        mentorId: requestData.mentorId,
+        experience: requestData.experience,
+        qualifications: requestData.qualifications,
+        motivation: requestData.motivation,
+        portfolio: requestData.portfolio
+      };
+      
+      const request = await storage.createMasterRoleRequest(validRequestData);
       res.status(201).json(request);
     } catch (error) {
+      console.error("Master role request error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
