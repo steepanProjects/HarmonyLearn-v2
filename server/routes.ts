@@ -193,6 +193,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/classrooms/slug/:slug", async (req, res) => {
+    try {
+      const classroom = await storage.getClassroomBySlug(req.params.slug);
+      if (!classroom) return res.status(404).json({ error: "Academy not found" });
+      res.json(classroom);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/classrooms/:id", async (req, res) => {
     try {
       const classroom = await storage.getClassroomById(parseInt(req.params.id));

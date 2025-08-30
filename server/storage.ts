@@ -192,6 +192,40 @@ export const getClassroomById = async (id: number) => {
   });
 };
 
+export const getClassroomBySlug = async (slug: string) => {
+  return prisma.classroom.findUnique({
+    where: { customSlug: slug },
+    include: {
+      master: {
+        select: { id: true, username: true, firstName: true, lastName: true }
+      },
+      memberships: {
+        include: {
+          user: {
+            select: { id: true, username: true, firstName: true, lastName: true, role: true }
+          }
+        }
+      },
+      liveSessions: {
+        include: {
+          mentor: {
+            select: { id: true, username: true, firstName: true, lastName: true }
+          }
+        },
+        orderBy: { scheduledAt: 'desc' }
+      },
+      schedules: {
+        include: {
+          instructor: {
+            select: { id: true, username: true, firstName: true, lastName: true }
+          }
+        },
+        orderBy: { dayOfWeek: 'asc' }
+      }
+    }
+  });
+};
+
 export const createClassroom = async (classroomData: InsertClassroom) => {
   const validatedData = insertClassroomSchema.parse(classroomData);
   return prisma.classroom.create({
