@@ -503,6 +503,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const requestData = req.body;
       
+      // Check if we're receiving the wrong field names and return helpful error
+      if (requestData.reason || requestData.plannedClassrooms || requestData.additionalQualifications) {
+        return res.status(400).json({ 
+          error: "Invalid field names. Expected: mentorId, experience, qualifications, motivation. Received fields that belong to different request types." 
+        });
+      }
+      
       // Validate that we have the required fields for master role request
       if (!requestData.mentorId || !requestData.experience || !requestData.qualifications || !requestData.motivation) {
         return res.status(400).json({ 
@@ -522,7 +529,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.createMasterRoleRequest(validRequestData);
       res.status(201).json(request);
     } catch (error) {
-      console.error("Master role request error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
