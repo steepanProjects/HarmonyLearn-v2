@@ -1,0 +1,40 @@
+Button clicked
+AcademyCreationForm.tsx:614 Form errors: {}
+AcademyCreationForm.tsx:615 Form values: {academyName: 'Shalom Music Academy', description: 'sdfghjklkjhgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl;lkjhgfds', about: 'sdfghjklkjhgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl…hgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl;lkjhgfds', curriculum: 'sdfghjklkjhgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl…hgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl;lkjhgfds', customSlug: 'shalom-music-academy', …}
+AcademyCreationForm.tsx:616 Is form valid: false
+AcademyCreationForm.tsx:617 Selected instruments count: 1
+AcademyCreationForm.tsx:618 Selected features count: 1
+AcademyCreationForm.tsx:180 Form submitted with data: {academyName: 'Shalom Music Academy', description: 'sdfghjklkjhgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl;lkjhgfds', about: 'sdfghjklkjhgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl…hgfdsdfghjklkjhgfdsdfghjklkjhgfdsdfghjkl;lkjhgfds', masterId: 7, instruments: Array(1), …}
+AcademyCreationForm.tsx:181 Selected instruments: ['Acoustic Guitar']
+AcademyCreationForm.tsx:182 Selected features: ['Group Classes']
+AcademyCreationForm.tsx:183 User ID: 7
+queryClient.ts:21  POST https://d1e58043-ef5a-49a8-8e49-72919f46159f-00-3dx64apri4ci8.sisko.replit.dev/api/classrooms 500 (Internal Server Error)
+apiRequest @ queryClient.ts:21
+mutationFn @ AcademyCreationForm.tsx:132
+fn @ @tanstack_react-query.js?v=9d9621af:1189
+run @ @tanstack_react-query.js?v=9d9621af:494
+start @ @tanstack_react-query.js?v=9d9621af:536
+execute @ @tanstack_react-query.js?v=9d9621af:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=9d9621af:2630
+(anonymous) @ @tanstack_react-query.js?v=9d9621af:3295
+handleSubmit @ AcademyCreationForm.tsx:185
+(anonymous) @ chunk-4BFJKWC4.js?v=9d9621af:1465
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=9d9621af:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9d9621af:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9d9621af:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9d9621af:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9d9621af:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9d9621af:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9d9621af:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9d9621af:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9d9621af:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9d9621af:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9d9621af:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9d9621af:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9d9621af:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9d9621af:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=9d9621af:5449Understand this error
+AcademyCreationForm.tsx:170 Academy creation error: Error: HTTP error! status: 500
+    at apiRequest (queryClient.ts:30:11)

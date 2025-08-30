@@ -1,0 +1,33 @@
+Sending update request with data: {academyName: 'Harmony Guitar Academy', description: 'fdvfgbdfg f hbhbg vh bgvhgbgyvfvf', about: 'Welcome to Harmony Guitar Academy, where passion m…vanced players seeking to refine their technique.', curriculum: 'Our structured curriculum covers fundamental techn…suring a solid foundation and steady advancement.', heroImage: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&h=800&fit=crop', …}
+queryClient.ts:48 Failed to parse JSON response: {url: '/api/classrooms/13', error: `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`}
+overrideMethod @ hook.js:608
+apiRequest @ queryClient.ts:48
+await in apiRequest
+mutationFn @ AcademyEditor.tsx:178
+fn @ @tanstack_react-query.js?v=9d9621af:1189
+run @ @tanstack_react-query.js?v=9d9621af:494
+start @ @tanstack_react-query.js?v=9d9621af:536
+execute @ @tanstack_react-query.js?v=9d9621af:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=9d9621af:2630
+(anonymous) @ @tanstack_react-query.js?v=9d9621af:3295
+handleSubmit @ AcademyEditor.tsx:208
+(anonymous) @ chunk-4BFJKWC4.js?v=9d9621af:1465
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=9d9621af:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9d9621af:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9d9621af:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9d9621af:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9d9621af:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9d9621af:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9d9621af:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9d9621af:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9d9621af:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9d9621af:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9d9621af:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9d9621af:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9d9621af:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9d9621af:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=9d9621af:5449Understand this error
+AcademyEditor.tsx:198 Academy update error: Error: Invalid JSON response: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at apiRequest (queryClient.ts:52:11)
