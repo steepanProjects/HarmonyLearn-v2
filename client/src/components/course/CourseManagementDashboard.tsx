@@ -413,7 +413,7 @@ export const CourseManagementDashboard = () => {
                       </Button>
                     )}
 
-                    {(isAdmin || (isMentor && course.mentorId === currentUser?.id)) && (
+                    {(isAdmin || (isMentor && course.mentorId === Number(currentUser?.id))) && (
                       <Button
                         size="sm"
                         variant="destructive"

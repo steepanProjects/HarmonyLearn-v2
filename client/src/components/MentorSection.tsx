@@ -61,11 +61,11 @@ export const MentorSection = () => {
                 <CardHeader className="text-center">
                   <Avatar className="w-20 h-20 mx-auto mb-4">
                     <AvatarFallback className="text-lg">
-                      {mentor.firstName?.[0]}{mentor.lastName?.[0]}
+                      {mentor.bio?.[0] || 'M'}{mentor.specialization?.[0] || 'T'}
                     </AvatarFallback>
                   </Avatar>
                   
-                  <CardTitle className="text-xl">{mentor.firstName} {mentor.lastName}</CardTitle>
+                  <CardTitle className="text-xl">Music Mentor</CardTitle>
                   <CardDescription className="flex items-center justify-center gap-2">
                     <Music className="h-4 w-4" />
                     Music Mentor
@@ -73,7 +73,7 @@ export const MentorSection = () => {
                   
                   <div className="flex items-center justify-center gap-1 mt-2">
                     <Star className="h-4 w-4 fill-secondary text-secondary" />
-                    <span className="text-sm font-medium">{mentor.rating || 'New'}</span>
+                    <span className="text-sm font-medium">{mentor.averageRating || 'New'}</span>
                     <span className="text-sm text-muted-foreground">({mentor.totalStudents || 0} students)</span>
                   </div>
                 </CardHeader>
@@ -86,8 +86,8 @@ export const MentorSection = () => {
                   )}
                   
                   <div className="flex flex-wrap gap-2 justify-center mb-4">
-                    {mentor.specializations && mentor.specializations.length > 0 ? (
-                      mentor.specializations.map((specialty, idx) => (
+                    {mentor.specialization ? (
+                      [mentor.specialization].map((specialty, idx) => (
                         <Badge key={idx} variant="secondary" className="text-xs">
                           {specialty}
                         </Badge>

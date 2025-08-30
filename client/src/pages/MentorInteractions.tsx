@@ -115,7 +115,7 @@ export const MentorInteractions = () => {
       return apiRequest(`/api/mentorship-requests/${selectedRequest.id}/conversations`, {
         method: "POST",
         body: {
-          senderId: currentUser.id,
+          senderId: currentUser?.id || 0,
           message: data.message,
           messageType: 'text',
         },
@@ -345,12 +345,12 @@ export const MentorInteractions = () => {
                             <div
                               key={conversation.id}
                               className={`flex ${
-                                conversation.senderId === currentUser.id ? 'justify-end' : 'justify-start'
+                                conversation.senderId === Number(currentUser?.id) ? 'justify-end' : 'justify-start'
                               }`}
                             >
                               <div
                                 className={`max-w-[70%] p-3 rounded-lg ${
-                                  conversation.senderId === currentUser.id
+                                  conversation.senderId === Number(currentUser?.id)
                                     ? 'bg-primary text-primary-foreground'
                                     : 'bg-muted'
                                 }`}
@@ -360,7 +360,7 @@ export const MentorInteractions = () => {
                                   <span className="text-xs opacity-70">
                                     {conversation.createdAt ? format(new Date(conversation.createdAt), 'HH:mm') : 'Now'}
                                   </span>
-                                  {conversation.senderId === currentUser.id && (
+                                  {conversation.senderId === Number(currentUser?.id) && (
                                     conversation.isRead ? (
                                       <CheckCheck className="h-3 w-3 opacity-70" />
                                     ) : (

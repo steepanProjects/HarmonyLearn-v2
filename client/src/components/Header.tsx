@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Music, Bell, User, BookOpen, Users, Settings, Video, Shield, GraduationCap, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getCurrentUser, canCreateClassrooms, onAuthStateChange } from "@/lib/auth";

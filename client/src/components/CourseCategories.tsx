@@ -75,15 +75,16 @@ export const CourseCategories = ({ onCourseClick }: CourseCategoriesProps = {}) 
             ) : featuredCourses.length > 0 ? (
               featuredCourses.map((course) => (
                 <CourseCard 
-                  key={course.id} 
+                  id={course.id}
                   title={course.title}
+                  description={course.description || "Learn amazing music skills"}
                   instructor={`Mentor ID: ${course.mentorId || 'TBD'}`}
                   rating={4.5}
                   students={Math.floor(Math.random() * 1000) + 100}
                   duration={`${course.duration || 30}h`}
                   level={course.level as any}
                   price={course.price || "Free"}
-                  image={course.imageUrl || ""}
+                  imageUrl={course.imageUrl || ""}
                   category={course.category}
                   onClick={() => handleCourseClick(course.id, course.title)}
                 />
