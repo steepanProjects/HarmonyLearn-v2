@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import * as storage from "./storage.js";
+import * as storage from "./storage";
 import { 
   insertUserSchema, 
   insertCourseSchema, 
@@ -8,9 +8,10 @@ import {
   type InsertUser,
   type InsertCourse,
   type InsertClassroom
-} from "../shared/types.ts";
+} from "../shared/types";
 import { z } from "zod";
 import bcrypt from "bcrypt";
+import { config } from "./env";
 
 // Helper function to hash passwords
 async function hashPassword(password: string): Promise<string> {
@@ -24,6 +25,34 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Lightweight health check endpoint for container orchestration
+  app.get("/health", (req, res) => {
+    const healthStatus = {
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      environment: config.app.environment,
+      version: config.app.version,
+      uptime: process.uptime(),
+      memory: {
+        used: Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+        total: Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100
+      }
+    };
+    
+    res.status(200).json(healthStatus);
+  });
+
+  // Readiness check for container orchestration
+  app.get("/ready", async (req, res) => {
+    try {
+      // Quick database connectivity check
+      await storage.getUsers();
+      res.status(200).json({ status: "ready" });
+    } catch (error) {
+      res.status(503).json({ status: "not ready" });
+    }
+  });
+
   // User routes
   app.get("/api/users/:id", async (req, res) => {
     try {

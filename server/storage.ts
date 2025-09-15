@@ -1,4 +1,4 @@
-import { prisma } from './prisma.ts';
+import { prisma } from './prisma';
 import { 
   insertUserSchema, 
   insertCourseSchema, 
@@ -6,7 +6,7 @@ import {
   type InsertUser,
   type InsertCourse,
   type InsertClassroom
-} from '../shared/types.ts';
+} from '../shared/types';
 
 // User operations
 export const getUsers = async () => {

@@ -1,10 +1,33 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { config, validateProductionEnv } from "./env";
+
+// Validate production environment configuration
+validateProductionEnv();
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Production optimizations
+if (config.app.isProduction) {
+  // Trust proxy headers in production
+  app.set('trust proxy', 1);
+  
+  // Disable x-powered-by header for security
+  app.disable('x-powered-by');
+}
+
+// Request parsing middleware with size limits
+app.use(express.json({ 
+  limit: config.performance.bodyLimit,
+  strict: true
+}));
+app.use(express.urlencoded({ 
+  extended: false,
+  limit: config.performance.bodyLimit
+}));
+
+// Timeout will be configured at server level for better safety
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -43,17 +66,26 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    // Log error for monitoring but don't crash server in production
+    console.error('Error handler caught:', err);
+    
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
   });
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  if (config.app.isDevelopment) {
     await setupVite(app, server);
   } else {
     serveStatic(app);
+  }
+
+  // Configure server timeout for production safety
+  if (config.app.isProduction) {
+    server.setTimeout(config.performance.requestTimeout);
   }
 
   // ALWAYS serve the app on port 5000

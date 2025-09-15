@@ -4,7 +4,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('5000'),
-  DATABASE_URL: z.string(),
+  DATABASE_URL: z.string().optional(),
   
   // Security configuration
   SESSION_SECRET: z.string().default('fallback-secret-key-change-in-production'),
@@ -76,7 +76,7 @@ export const config = {
   },
   
   database: {
-    url: env.DATABASE_URL,
+    url: env.DATABASE_URL || '',
     ssl: env.DATABASE_SSL === 'true',
     poolSize: parseInt(env.DATABASE_POOL_SIZE),
   },
