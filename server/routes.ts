@@ -126,6 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user: userResponse 
       });
     } catch (error) {
+      console.error('Login error:', error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
