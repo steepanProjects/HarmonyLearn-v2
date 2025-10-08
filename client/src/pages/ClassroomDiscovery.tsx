@@ -32,6 +32,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { MentorNavigation } from "@/components/mentor/MentorNavigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
 import { type Classroom } from "../../../shared/types";
 
 // Define StaffRequest type locally
@@ -50,7 +52,6 @@ const insertStaffRequestSchema = z.object({
   classroomId: z.number(),
   message: z.string().optional(),
 });
-import { useToast } from "@/hooks/use-toast";
 
 const apiRequest = async (url: string, options?: { method: string; body?: string }) => {
   const response = await fetch(url, {
